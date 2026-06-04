@@ -1,4 +1,4 @@
-# The Student Signal — CriticalAsset Hackathon
+# The Student Signal -- CriticalAsset Hackathon
 
 **NYC Tech Week 2026 | The City Hacks The State**
 
@@ -17,7 +17,7 @@ Connected to the CriticalAsset GraphQL API, authenticated, pulled 56 live work o
 
 **API Details:**
 - Endpoint: `https://api.criticalasset.com/gql`
-- Auth: `userSignIn` mutation → JWT token in `Authorization: Bearer` header
+- Auth: `userSignIn` mutation -> JWT token in `Authorization: Bearer` header
 - Company context: `company-id` header
 - Scopes: workorders.read, assets.read, locations.read
 
@@ -42,7 +42,7 @@ An AI-powered field-intake and workflow tool that captures the truth from people
 
 ## Team
 
-- Jack Rocco — InsureMEP
+- Jack Rocco -- InsureMEP
 
 ## Running Locally
 
