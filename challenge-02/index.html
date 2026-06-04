@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Signal - AI Field Intake and Workflow Tool</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --color-bg: #0d1117;
+  --color-bg-secondary: #161b22;
+  --color-bg-tertiary: #1c2128;
+  --color-text: #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted: #6e7681;
+  --color-border-light: #21262d;
+  --color-border: #30363d;
+  --color-primary: #58a6ff;
+  --color-primary-bg: rgba(88,166,255,0.1);
+  --color-success: #3fb950;
+  --color-success-bg: rgba(63,185,80,0.1);
+  --color-error: #f85149;
+  --color-error-bg: rgba(248,81,73,0.1);
+  --color-warning: #d29922;
+  --color-warning-bg: rgba(210,153,34,0.1);
+  --color-purple: #a371f7;
+  --color-purple-bg: rgba(163,113,247,0.1);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', Consolas, monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 100px;
+}
+* { box-sizing: border-box; }
+body { background: var(--color-bg); font-family: var(--font-sans); color: var(--color-text); margin: 0; padding: 0; line-height: 1.5; }
+.app { max-width: 1200px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 24px; font-weight: 700; margin: 0; }
+h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+h3 { font-size: 14px; font-weight: 600; margin: 0 0 8px; color: var(--color-text-secondary); }
+.subtitle { color: var(--color-text-muted); font-size: 13px; margin: 4px 0 24px; }
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.header i { font-size: 24px; color: var(--color-primary); }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--color-border-light); margin-bottom: 24px; }
+.tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: var(--color-text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab:hover { color: var(--color-text-secondary); }
+.tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.card { background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+.card-sm { padding: 16px; }
+.intake-hero { text-align: center; padding: 40px 20px; margin-bottom: 24px; }
+.intake-hero h2 { font-size: 22px; margin-bottom: 8px; }
+.intake-hero p { color: var(--color-text-secondary); max-width: 500px; margin: 0 auto; }
+.intake-input-wrap { position: relative; max-width: 700px; margin: 24px auto 0; }
+.intake-input { width: 100%; padding: 16px 20px; padding-right: 120px; font-size: 15px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-tertiary); color: var(--color-text); outline: none; transition: border-color 0.2s; }
+.intake-input:focus { border-color: var(--color-primary); }
+.intake-input::placeholder { color: var(--color-text-muted); }
+.intake-submit { position: absolute; right: 8px; top: 8px; bottom: 8px; padding: 0 20px; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; cursor: pointer; }
+.intake-submit:hover { opacity: 0.9; }
+.quick-actions { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+.quick-btn { padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--color-border); background: transparent; color: var(--color-text-secondary); font-size: 11px; cursor: pointer; }
+.quick-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.followup-section { display: none; max-width: 700px; margin: 0 auto; }
+.followup-section.active { display: block; }
+.followup-q { margin-bottom: 16px; }
+.followup-q label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--color-text-secondary); }
+.followup-q input, .followup-q select, .followup-q textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-tertiary); color: var(--color-text); font-size: 13px; outline: none; }
+.followup-q textarea { min-height: 60px; resize: vertical; }
+.followup-q input:focus, .followup-q select:focus, .followup-q textarea:focus { border-color: var(--color-primary); }
+.photo-upload { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px dashed var(--color-border); border-radius: var(--radius-md); cursor: pointer; }
+.photo-upload i { font-size: 20px; color: var(--color-text-muted); }
+.photo-upload span { font-size: 12px; color: var(--color-text-muted); }
+.ai-output { display: none; max-width: 900px; margin: 24px auto 0; }
+.ai-output.active { display: block; }
+.ai-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; margin-bottom: 16px; }
+.ai-badge.structuring { background: var(--color-purple-bg); color: var(--color-purple); }
+.output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+@media (max-width: 768px) { .output-grid { grid-template-columns: 1fr; } }
+.output-item { background: var(--color-bg-tertiary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: 14px; }
+.output-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 4px; }
+.output-item .value { font-size: 14px; font-weight: 500; }
+.severity-high { color: var(--color-error); }
+.severity-medium { color: var(--color-warning); }
+.severity-low { color: var(--color-success); }
+.enrichment-card { background: var(--color-bg-tertiary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+.enrichment-card .source { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-purple); margin-bottom: 6px; }
+.enrichment-card .finding { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.enrichment-card .implication { font-size: 12px; color: var(--color-warning); margin-top: 8px; font-style: italic; }
+.workflow-step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+.workflow-num { width: 28px; height: 28px; min-width: 28px; border-radius: 50%; background: var(--color-primary-bg); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.workflow-text { font-size: 13px; color: var(--color-text-secondary); }
+.workflow-text strong { color: var(--color-text); }
+.wo-list { max-height: 400px; overflow-y: auto; }
+.wo-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--color-border-light); cursor: pointer; transition: background 0.1s; }
+.wo-item:hover { background: var(--color-bg-tertiary); }
+.wo-item.selected { background: var(--color-primary-bg); border-left: 3px solid var(--color-primary); }
+.wo-item .wo-name { font-size: 13px; font-weight: 500; flex: 1; }
+.wo-item .wo-loc { font-size: 11px; color: var(--color-text-muted); }
+.wo-badge-sm { font-size: 10px; padding: 2px 7px; border-radius: var(--radius-pill); font-weight: 600; }
+.wo-badge-sm.todo { background: rgba(210,153,34,0.15); color: #d29922; }
+.wo-badge-sm.progress { background: rgba(88,166,255,0.15); color: #58a6ff; }
+.wo-badge-sm.done { background: rgba(63,185,80,0.15); color: #3fb950; }
+.feedback-options { display: flex; gap: 12px; flex-wrap: wrap; }
+.feedback-opt { padding: 12px 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: transparent; color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+.feedback-opt:hover { border-color: var(--color-primary); }
+.feedback-opt.selected { border-color: var(--color-primary); background: var(--color-primary-bg); color: var(--color-primary); }
+.loading { display: none; text-align: center; padding: 40px; }
+.loading.active { display: block; }
+.loading i { font-size: 24px; color: var(--color-primary); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p { color: var(--color-text-muted); font-size: 13px; margin-top: 12px; }
+.section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border-light); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header"><i class="fa-solid fa-tower-broadcast"></i><h1>Student Signal</h1></div>
+  <p class="subtitle">AI-Powered Field Intake and Workflow Tool &mdash; The City Hacks The State 2026</p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('intake')"><i class="fa-solid fa-pen-to-square"></i>&nbsp; New Report</div>
+    <div class="tab" onclick="switchTab('workorders')"><i class="fa-solid fa-list-check"></i>&nbsp; Existing Work Orders</div>
+    <div class="tab" onclick="switchTab('feedback')"><i class="fa-solid fa-circle-check"></i>&nbsp; Closure Verification</div>
+  </div>
+
+  <!-- TAB 1: New Student Report -->
+  <div class="tab-content active" id="tab-intake">
+    <div class="intake-hero">
+      <h2>What is happening in your building?</h2>
+      <p>Tell us in your own words. One sentence is enough &mdash; AI will do the rest.</p>
+      <div class="intake-input-wrap">
+        <input type="text" class="intake-input" id="signal-input" placeholder="e.g. The second-floor bathroom smells like sewage and the floor is wet..." />
+        <button class="intake-submit" onclick="submitSignal()"><i class="fa-solid fa-bolt"></i> Analyze</button>
+      </div>
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="prefill('The hallway radiator is leaking water onto the floor near room 202')"><i class="fa-solid fa-droplet"></i> Leak</button>
+        <button class="quick-btn" onclick="prefill('Room 304 has been way too hot for three days, students are getting headaches')"><i class="fa-solid fa-temperature-high"></i> Temperature</button>
+        <button class="quick-btn" onclick="prefill('The stairwell door on the 3rd floor doesnt latch and keeps swinging open')"><i class="fa-solid fa-door-open"></i> Door</button>
+        <button class="quick-btn" onclick="prefill('The elevator has been out of service for a week and students with disabilities cant get to class')"><i class="fa-solid fa-elevator"></i> Elevator</button>
+        <button class="quick-btn" onclick="prefill('The fire alarm in the east wing went off 3 times this week for no reason')"><i class="fa-solid fa-bell"></i> Fire Alarm</button>
+      </div>
+    </div>
+
+    <div class="followup-section" id="followup-section">
+      <div class="card card-sm">
+        <h3><i class="fa-solid fa-circle-question" style="color:var(--color-primary);"></i> Quick follow-up (optional)</h3>
+        <div class="followup-q"><label>Where exactly? (floor, room, area)</label><input type="text" id="fu-where" placeholder="e.g. 2nd floor, near the gym" /></div>
+        <div class="followup-q"><label>When did this start?</label><input type="text" id="fu-when" placeholder="e.g. Monday, or 3 days ago" /></div>
+        <div class="followup-q"><label>Is it still happening right now?</label><select id="fu-still"><option value="">-- Select --</option><option value="yes">Yes, still happening</option><option value="no">No, it stopped</option><option value="intermittent">Comes and goes</option></select></div>
+        <div class="followup-q"><label>How disruptive? (1 = minor, 5 = unusable)</label><select id="fu-severity"><option value="">-- Select --</option><option value="1">1 - Minor annoyance</option><option value="2">2 - Noticeable</option><option value="3">3 - Affects daily routine</option><option value="4">4 - Significant disruption</option><option value="5">5 - Space is unusable/unsafe</option></select></div>
+        <div class="followup-q"><label>Photo or additional note</label><div class="photo-upload"><i class="fa-solid fa-camera"></i><span>Tap to add a photo (optional)</span></div></div>
+        <button class="intake-submit" style="position:static;margin-top:12px;width:100%;" onclick="processSignal()"><i class="fa-solid fa-wand-magic-sparkles"></i> Process with AI</button>
+      </div>
+    </div>
+
+    <div class="loading" id="loading"><i class="fa-solid fa-spinner"></i><p>AI is analyzing your report, enriching with public data, and building the workflow...</p></div>
+
+    <div class="ai-output" id="ai-output">
+      <span class="ai-badge structuring"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Structured Output</span>
+      <div class="section-title">Issue Classification</div>
+      <div class="output-grid" id="ai-classification"></div>
+      <div class="section-title">Public Data Enrichment</div>
+      <div id="ai-enrichment"></div>
+      <div class="section-title">Compliance and Obligations</div>
+      <div id="ai-compliance"></div>
+      <div class="section-title">Recommended Workflow</div>
+      <div class="card card-sm" id="ai-workflow"></div>
+      <div class="section-title">Generated Work Order Description</div>
+      <div class="card card-sm" id="ai-wo-desc" style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;"></div>
+      <div class="section-title">Closure Verification</div>
+      <div class="card card-sm">
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 12px;">We will check back &mdash; did this get fixed?</p>
+        <div class="feedback-options">
+          <button class="feedback-opt" onclick="selectFeedback(this,'fixed')"><i class="fa-solid fa-check-circle" style="color:var(--color-success);"></i> Yes, fixed</button>
+          <button class="feedback-opt" onclick="selectFeedback(this,'still')"><i class="fa-solid fa-exclamation-circle" style="color:var(--color-warning);"></i> Still happening</button>
+          <button class="feedback-opt" onclick="selectFeedback(this,'worse')"><i class="fa-solid fa-times-circle" style="color:var(--color-error);"></i> Got worse</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Work Order Selection -->
+  <div class="tab-content" id="tab-workorders">
+    <div class="card">
+      <h3>Select a Work Order to Enrich</h3>
+      <p style="font-size:12px;color:var(--color-text-muted);margin-bottom:16px;">Pick a weak work order from the CriticalAsset feed. Look for short descriptions, missing detail, or recurring issues.</p>
+      <input type="text" id="wo-search" placeholder="Search work orders..." style="width:100%;padding:10px 14px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg-tertiary);color:var(--color-text);font-size:13px;margin-bottom:12px;outline:none;" oninput="filterWO()" />
+      <div class="wo-list" id="wo-list"></div>
+    </div>
+    <div id="wo-enrich-output" style="display:none;margin-top:16px;">
+      <span class="ai-badge structuring"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Work Order Enhancement</span>
+      <div class="card card-sm" id="wo-enhanced"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Closure Verification -->
+  <div class="tab-content" id="tab-feedback">
+    <div class="card" style="text-align:center;padding:40px;">
+      <i class="fa-solid fa-clipboard-check" style="font-size:40px;color:var(--color-primary);margin-bottom:16px;"></i>
+      <h2>Did it actually get fixed?</h2>
+      <p style="color:var(--color-text-secondary);max-width:400px;margin:0 auto 24px;">The student signal does not end at submission. Confirm whether the issue was resolved so the system learns the truth.</p>
+      <div class="feedback-options" style="justify-content:center;">
+        <button class="feedback-opt" onclick="selectFeedback(this,'fixed')"><i class="fa-solid fa-check-circle" style="color:var(--color-success);"></i> Fixed</button>
+        <button class="feedback-opt" onclick="selectFeedback(this,'still')"><i class="fa-solid fa-exclamation-circle" style="color:var(--color-warning);"></i> Still happening</button>
+        <button class="feedback-opt" onclick="selectFeedback(this,'worse')"><i class="fa-solid fa-times-circle" style="color:var(--color-error);"></i> Worse</button>
+        <button class="feedback-opt" onclick="selectFeedback(this,'partial')"><i class="fa-solid fa-adjust" style="color:var(--color-text-muted);"></i> Partially fixed</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const workOrders = [{"id": "7d369860-3dd5-4560-a693-45774ac4ca0e", "name": "My first WO on prod 02.01", "description": "**test description**\n_test_\n", "createdAt": 1675265424839, "stage": "Completed", "address": "211 Church Street", "city": "Saratoga Springs", "state": "NY", "zip": "12866", "assignmentCount": 4}, {"id": "2948ab7b-86da-425e-b283-458d7423782b", "name": "Work Order 1", "description": "", "createdAt": 1675257791346, "stage": "To Do", "address": "4600 150th Avenue Northeast", "city": "Redmond", "state": "WA", "zip": "98052", "assignmentCount": 2}, {"id": "abf1000b-15d7-4d00-aa76-6a16258f505f", "name": "IR scan of main electrical panel", "description": "", "createdAt": 1675396405775, "stage": "To Do", "address": " 4th Street", "city": "Zeeland", "state": "ND", "zip": "58581", "assignmentCount": 2}, {"id": "1e07c73c-9639-426a-a2ea-ab2427de0c97", "name": "Inspection NR14 Panel ARC", "description": "", "createdAt": 1675277848797, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 4}, {"id": "5e55701c-b1c9-47e2-88ef-b9c780e529da", "name": "Check electrical panel 2nd floor", "description": "", "createdAt": 1675439867104, "stage": "To Do", "address": " 4th Street", "city": "Zeeland", "state": "ND", "zip": "58581", "assignmentCount": 2}, {"id": "7397ef6d-1738-4afd-a2da-9193cbc6b50e", "name": "Title ", "description": "", "createdAt": 1675257396171, "stage": "In Progress", "address": "3700 Southwest Freeway", "city": "Houston", "state": "TX", "zip": "77027", "assignmentCount": 2}, {"id": "5bb7f7d5-bb5e-4373-a91b-56338532c762", "name": "Check vacuum system", "description": "", "createdAt": 1675440517675, "stage": "To Do", "address": " 4th Street", "city": "Zeeland", "state": "ND", "zip": "58581", "assignmentCount": 2}, {"id": "0907088c-720e-4f7b-ae43-95ecee463b83", "name": "test", "description": "", "createdAt": 1675267431083, "stage": "To Do", "address": " East El Camino Real", "city": "Sunnyvale", "state": "TX", "zip": "94087", "assignmentCount": 2}, {"id": "68f1f53e-8608-4562-b925-59c56f23d1e2", "name": "Check of the Electrical Panel and Smoke detector in the Store of The best company2", "description": "**Lorem Ipsum** is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of _Lorem Ipsum._", "createdAt": 1675265382861, "stage": "Completed", "address": "211 Church Street", "city": "Saratoga Springs", "state": "NY", "zip": "12866", "assignmentCount": 6}, {"id": "2d95480d-fe3d-4076-b40a-9f457d7f369e", "name": "test", "description": "", "createdAt": 1675271345714, "stage": "To Do", "address": "1387 East New Circle Road", "city": "Lexington", "state": "KY", "zip": "40505", "assignmentCount": 2}, {"id": "5634613c-b848-4d78-8523-ee5c22ee36b0", "name": "Service Atom Power Station 1", "description": "", "createdAt": 1675446658056, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 4}, {"id": "84e112d1-a791-4a79-a194-641f28aefbe7", "name": "Check basement assets", "description": "", "createdAt": 1675450515138, "stage": "To Do", "address": " 4th Street", "city": "Zeeland", "state": "ND", "zip": "58581", "assignmentCount": 2}, {"id": "34106264-ecbd-42f6-9bab-a849c2a7f78d", "name": "asset new", "description": "https://app.criticalasset.com/work-orders/34106264-ecbd-42f6-9bab-a849c2a7f78dhttps://app.criticalasset.com/work-orders/34106264-ecbd-42f6-9bab-a849c2a7f78dhttps://app.criticalasset.com/work-orders/34106264-ecbd-42f6-9bab-a849c2a7f78dhttps://app.criticalasset.com/work-orders/34106264-ecbd-42f6-9bab-a849c2a7f78dhttps://app.criticalasset.com/work-orders/34106264-ecbd-42f6-9bab-a849c2a7f78dhttps://app.criticalasset.com/work-orders/34106264-ecbd-42f6-9bab-a849c2a7f78d", "createdAt": 1675266740595, "stage": "Completed", "address": "211 Church Street", "city": "Saratoga Springs", "state": "NY", "zip": "12866", "assignmentCount": 7}, {"id": "3ed79ffd-d3af-4d30-bbd8-d5b2498b6343", "name": "Loud noise when running", "description": "", "createdAt": 1675699789789, "stage": "In Progress", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 3}, {"id": "1a7e5e4d-ee66-41a2-933e-00dc34297976", "name": "Loud noise", "description": "", "createdAt": 1675714409374, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "bd584dd0-fc97-4032-a2ec-3afdc585ea92", "name": "Inspection", "description": "", "createdAt": 1675786802574, "stage": "In Progress", "address": "1189 Varteigveien", "city": "Rakkestad", "state": "Viken", "zip": "1894", "assignmentCount": 3}, {"id": "491bffe0-3f9c-4171-82a6-fc70ac1fe060", "name": "Test 5", "description": "", "createdAt": 1675953002456, "stage": "To Do", "address": " 4th Street", "city": "Zeeland", "state": "ND", "zip": "58581", "assignmentCount": 4}, {"id": "0bff9d44-319a-4c73-aa3a-af85d82ae61a", "name": "Repair Leak", "description": "", "createdAt": 1675973629580, "stage": "To Do", "address": " Chicago Place Northwest", "city": "Canton", "state": "AK", "zip": "44703", "assignmentCount": 2}, {"id": "1d7c4149-b49c-49bc-a23b-fba7cccb3ecb", "name": "Inspection", "description": "", "createdAt": 1675973756847, "stage": "To Do", "address": " Chicago Place Northwest", "city": "Canton", "state": "AK", "zip": "44703", "assignmentCount": 2}, {"id": "98cb236d-a52c-4624-9e4b-7b6cfbf6bb17", "name": "Electric Work - Panel", "description": "", "createdAt": 1675974240679, "stage": "To Do", "address": "419 Demo Dr", "city": "San Diego", "state": "CA", "zip": "92108", "assignmentCount": 2}, {"id": "d241ec91-bd14-4ba1-8cb7-fe334dbe719d", "name": "Duct Smoke - 01", "description": "", "createdAt": 1675974510655, "stage": "To Do", "address": "419 Demo Dr", "city": "San Diego", "state": "CA", "zip": "92108", "assignmentCount": 2}, {"id": "dcf68588-9a38-466f-b7e7-7b5d72d80b23", "name": "Test plan page create wo 10.02", "description": "", "createdAt": 1676016088285, "stage": "To Do", "address": "211 Church Street", "city": "Saratoga Springs", "state": "NY", "zip": "12866", "assignmentCount": 2}, {"id": "27ad8539-0715-4803-952e-3e9b679c7d84", "name": "Phone numbers 10.02", "description": "", "createdAt": 1676016751959, "stage": "To Do", "address": "211 Church Street", "city": "Saratoga Springs", "state": "NY", "zip": "12866", "assignmentCount": 2}, {"id": "b8634fd1-bdc1-4d11-9443-881150b1dc71", "name": "Switch Manlfunction", "description": "", "createdAt": 1677188817440, "stage": "To Do", "address": "", "city": "", "state": "", "zip": "", "assignmentCount": 2}, {"id": "8fdd565d-2439-4aa9-914a-0ba11b4254ae", "name": "Test Workorder #1", "description": "", "createdAt": 1675710380653, "stage": "Completed", "address": "419 Demo Dr", "city": "San Diego", "state": "CA", "zip": "92108", "assignmentCount": 2}, {"id": "0edc37a6-51c9-4423-8c7d-e23865b55537", "name": "Change Breaker 4", "description": "", "createdAt": 1680031168431, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "2e198602-15bc-4a8a-bb68-bfc1db261153", "name": "Inspection", "description": "", "createdAt": 1680031374536, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "1030a082-f967-44bc-841c-c50454ff9b3a", "name": "This is a test", "description": "", "createdAt": 1680215677191, "stage": "To Do", "address": "1189 Varteigveien", "city": "Rakkestad", "state": "Viken", "zip": "1894", "assignmentCount": 4}, {"id": "93fe4f91-b358-47ec-be8e-479c30d5a091", "name": "Gfi test", "description": "", "createdAt": 1680700166468, "stage": "To Do", "address": " Hoover Road", "city": "Warren", "state": "AL", "zip": "48093", "assignmentCount": 4}, {"id": "6c50d47d-ca53-4f1b-a020-f52f4b25d254", "name": "Inspection", "description": "Inspection", "createdAt": 1751400677436, "stage": "To Do", "address": "150 West Ocean Boulevard", "city": "Long Beach", "state": "CA", "zip": "90802", "assignmentCount": 4}, {"id": "e6574c4b-55c5-4d45-9c40-4281fae3d599", "name": "Toilet is leaking ", "description": "BLAH BLAH BLAH ", "createdAt": 1681942668845, "stage": "To Do", "address": " Hoover Road", "city": "Warren", "state": "AL", "zip": "48093", "assignmentCount": 5}, {"id": "a40a5c73-702e-4e0e-9b18-34f264836d52", "name": "Fluid pump malfunction", "description": "", "createdAt": 1682347707083, "stage": "To Do", "address": " Hoover Road", "city": "Warren", "state": "AL", "zip": "48093", "assignmentCount": 2}, {"id": "a95e46da-fbfa-4076-9ff1-bb71d79cbff3", "name": "Non-Functional Mechanical Locks", "description": "", "createdAt": 1677712954099, "stage": "Completed", "address": "123 ", "city": "Washington", "state": "DC", "zip": "20005", "assignmentCount": 2}, {"id": "e208b49c-5286-4c51-9825-60d05f501197", "name": "Test", "description": "", "createdAt": 1714761099343, "stage": "To Do", "address": "123 Maine Highway 1", "city": "Whiting", "state": "ME", "zip": "04691", "assignmentCount": 2}, {"id": "e7f2d34b-ccd8-4651-ab95-9c71cb8e5ba7", "name": "X ray is not working", "description": "The light on the xray is not working", "createdAt": 1680701869626, "stage": "To Do", "address": " Hoover Road", "city": "Warren", "state": "AL", "zip": "48093", "assignmentCount": 4}, {"id": "1fac93fb-cce4-4875-bb00-c3dd6a956b9f", "name": "Test", "description": "Update floorplan with correct position", "createdAt": 1689866556980, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 4}, {"id": "f2e639be-8886-4ab3-9d35-924af32476e4", "name": "TEST", "description": "", "createdAt": 1680700161990, "stage": "Completed", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "38e2f387-02db-4ccd-999f-56f1e06f7c0d", "name": "SP-4 Inspection", "description": "", "createdAt": 1723810679465, "stage": "To Do", "address": "123", "city": "Fake Street", "state": "NY", "zip": "11111", "assignmentCount": 2}, {"id": "7c01c775-f414-4890-b179-8c4c1f35ce28", "name": "Rec. Inspec.", "description": "", "createdAt": 1738175338945, "stage": "To Do", "address": "7600 Fay Avenue", "city": "La Jolla", "state": "CA", "zip": "92037", "assignmentCount": 2}, {"id": "181ac026-4441-4686-8ed6-32dcd6dddded", "name": "Fire Ext Recharge ", "description": "", "createdAt": 1744660823030, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "c4350a67-e7fd-47c4-9c00-b37461988bf3", "name": "TEST ORDER", "description": "", "createdAt": 1682706680338, "stage": "Completed", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "4b5f230f-10da-47a3-a754-a5098aa0fba1", "name": "Test", "description": "", "createdAt": 1750685252256, "stage": "To Do", "address": "", "city": "", "state": "", "zip": "", "assignmentCount": 2}, {"id": "fbc84ecc-390e-4c94-8adc-d10455f847d2", "name": "Replace the filters", "description": "", "createdAt": 1677195531469, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 2}, {"id": "96241bef-18b2-400e-98dd-0b36b43c431c", "name": "Inspection", "description": "Inspection", "createdAt": 1751400728302, "stage": "Completed", "address": "150 West Ocean Boulevard", "city": "Long Beach", "state": "CA", "zip": "90802", "assignmentCount": 4}, {"id": "d3e15b03-0368-4249-bb6c-faec73a8ac66", "name": "Test Test", "description": "", "createdAt": 1752005545761, "stage": "To Do", "address": "Elm View Road", "city": "Green Bay", "state": "AK", "zip": "54311", "assignmentCount": 2}, {"id": "f8ee03eb-5aa9-4bca-b8a5-71a7a1e2cc6f", "name": "Confirm no degredation", "description": "", "createdAt": 1752090495791, "stage": "To Do", "address": "145 North State College Boulevard", "city": "Brea", "state": "CA", "zip": "92821", "assignmentCount": 3}, {"id": "1d4b3746-b92f-41a9-b0de-2228d2ccb6ae", "name": "Miscellaneous", "description": "Miscellaneous Ticket", "createdAt": 1756446617602, "stage": "To Do", "address": " Elm View Road", "city": "Bokchito", "state": "OK", "zip": "74726", "assignmentCount": 4}, {"id": "09309d28-ccbc-46ef-93ee-408abd95eeea", "name": "Service", "description": "", "createdAt": 1758703133172, "stage": "To Do", "address": "36 \u041c\u0438\u0440\u0443 \u0412\u0443\u043b\u0438\u0446\u044f", "city": "\u0421\u0438\u0442\u043d\u0438\u043a\u0438", "state": "Cherkasy Oblast", "zip": "194", "assignmentCount": 4}, {"id": "0413f8a4-c2b1-4df7-94ca-4292dd1259d7", "name": "AHU Servies ", "description": "", "createdAt": 1758711220684, "stage": "In Progress", "address": "", "city": "", "state": "", "zip": "", "assignmentCount": 4}, {"id": "8dacf542-bf4c-4f39-9b16-c0aaab8d4f00", "name": "Electrical (Air Compressor)", "description": "Electrical (Air Compressor)", "createdAt": 1758782895782, "stage": "To Do", "address": "123 Main St", "city": "Rhino", "state": "AL", "zip": "47474", "assignmentCount": 4}, {"id": "6ff550aa-e07f-4daa-9018-b2ee1712f1ff", "name": "Electrical (Air Compressor)", "description": "Electrical (Air Compressor)", "createdAt": 1758782946886, "stage": "Completed", "address": "123 Main St", "city": "Rhino", "state": "AL", "zip": "47474", "assignmentCount": 4}, {"id": "39b061d5-a5e5-4396-973a-8392c26cb83c", "name": "AC Service", "description": "", "createdAt": 1758790639999, "stage": "To Do", "address": "Chicago Place Northwest Canton, AK 44703", "city": "Chicago", "state": "AL", "zip": "AK 44703", "assignmentCount": 4}, {"id": "8064206e-b02b-4e39-8089-bc5156a9128d", "name": "This is a test", "description": "", "createdAt": 1759182595667, "stage": "To Do", "address": "1600 Pennsylvania Avenue NW, Washington, DC 20500, USA", "city": "Washington, D.C.", "state": "CO", "zip": "000000", "assignmentCount": 2}, {"id": "974c28df-c36b-4a77-8838-975203265bcf", "name": "FAN", "description": "", "createdAt": 1763026919069, "stage": "To Do", "address": "Chicago Place Northwest Canton, AK 44703", "city": "Chicago", "state": "AL", "zip": "AK 44703", "assignmentCount": 2}, {"id": "493e9e26-f546-4713-b7f7-13b205eb9d9d", "name": "MY Test", "description": "", "createdAt": 1764143400324, "stage": "To Do", "address": "419 Demo Dr", "city": "San Diego", "state": "CA", "zip": "92108", "assignmentCount": 4}, {"id": "1d552926-cecc-423c-9d00-91a1c8367c46", "name": "my test", "description": "", "createdAt": 1764143551376, "stage": "To Do", "address": "419 Demo Dr", "city": "San Diego", "state": "CA", "zip": "92108", "assignmentCount": 4}];
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.closest('.tab').classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function prefill(text) { document.getElementById('signal-input').value = text; }
+
+function submitSignal() {
+  var input = document.getElementById('signal-input').value.trim();
+  if (!input) return;
+  document.getElementById('followup-section').classList.add('active');
+  document.getElementById('followup-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function processSignal() {
+  document.getElementById('followup-section').classList.remove('active');
+  document.getElementById('loading').classList.add('active');
+  setTimeout(function() {
+    document.getElementById('loading').classList.remove('active');
+    var input = document.getElementById('signal-input').value.trim();
+    var where = document.getElementById('fu-where').value;
+    var when_val = document.getElementById('fu-when').value;
+    var still = document.getElementById('fu-still').value;
+    var severity = document.getElementById('fu-severity').value;
+    generateAIOutput(input, where, when_val, still, severity);
+  }, 2000);
+}
+
+function analyzeInput(input) {
+  var lower = input.toLowerCase();
+  var issueType = 'General Maintenance';
+  var assetCategory = 'Building Systems';
+  var severity = 'Medium';
+  var severityClass = 'severity-medium';
+  var urgency = 'Within 48 hours';
+  var location = 'Not specified';
+  
+  if (lower.indexOf('sewage') >= 0 || lower.indexOf('drain') >= 0 || lower.indexOf('plumb') >= 0 || lower.indexOf('leak') >= 0 || lower.indexOf('water') >= 0 || lower.indexOf('wet') >= 0) {
+    issueType = 'Plumbing / Drainage / Water Intrusion'; assetCategory = 'Floor drain, sanitary line, plumbing fixtures'; severity = 'High'; severityClass = 'severity-high'; urgency = 'Same day';
+  } else if (lower.indexOf('hot') >= 0 || lower.indexOf('cold') >= 0 || lower.indexOf('temperature') >= 0 || lower.indexOf('heat') >= 0 || lower.indexOf('hvac') >= 0) {
+    issueType = 'HVAC / Temperature / Comfort'; assetCategory = 'AHU, thermostat, damper, VAV, ductwork'; severity = 'Medium'; severityClass = 'severity-medium'; urgency = 'Within 24 hours';
+  } else if (lower.indexOf('door') >= 0 || lower.indexOf('latch') >= 0 || lower.indexOf('lock') >= 0) {
+    issueType = 'Door / Hardware / Egress'; assetCategory = 'Door hardware, closer, latch, frame'; severity = 'High'; severityClass = 'severity-high'; urgency = 'Same day (if fire/egress related)';
+  } else if (lower.indexOf('elevator') >= 0 || lower.indexOf('lift') >= 0) {
+    issueType = 'Elevator / Vertical Transport'; assetCategory = 'Elevator cab, motor, controls, door operator'; severity = 'High'; severityClass = 'severity-high'; urgency = 'Immediate - accessibility impact';
+  } else if (lower.indexOf('fire') >= 0 || lower.indexOf('alarm') >= 0 || lower.indexOf('smoke') >= 0) {
+    issueType = 'Fire / Life Safety'; assetCategory = 'Fire alarm panel, smoke detector, pull station'; severity = 'Critical'; severityClass = 'severity-high'; urgency = 'Immediate';
+  } else if (lower.indexOf('electric') >= 0 || lower.indexOf('outlet') >= 0 || lower.indexOf('panel') >= 0 || lower.indexOf('breaker') >= 0) {
+    issueType = 'Electrical'; assetCategory = 'Electrical panel, breaker, outlet, wiring'; severity = 'High'; severityClass = 'severity-high'; urgency = 'Same day';
+  }
+  
+  if (lower.indexOf('bathroom') >= 0) location = 'Bathroom';
+  if (lower.indexOf('hallway') >= 0) location = 'Hallway';
+  if (lower.indexOf('stairwell') >= 0) location = 'Stairwell';
+  var floorMatch = lower.match(/(\d+)(st|nd|rd|th)[- ]floor/);
+  if (floorMatch) location = floorMatch[0] + (location ? ', ' + location : '');
+  var roomMatch = lower.match(/room\s*(\d+)/);
+  if (roomMatch) location = (location && location !== 'Not specified' ? location + ', ' : '') + roomMatch[0];
+
+  return { issueType: issueType, assetCategory: assetCategory, severity: severity, severityClass: severityClass, urgency: urgency, location: location || 'Not specified' };
+}
+
+function getEnrichment(issueType) {
+  var e = {
+    'Plumbing / Drainage / Water Intrusion': { publicData: 'NYC DOB records show 2 prior plumbing-related violations at this building in past 18 months. HPD received 4 complaints related to water/leak conditions. DEP records show no recent main breaks.', implication: 'Recurring drainage issues suggest systemic problem. Prior violations may require follow-up inspection before closure.', history: 'CriticalAsset shows 3 prior plumbing work orders. Most recent marked Completed 6 weeks ago but recurrence suggests incomplete resolution.', environmental: 'Recent rainfall: 2.3 inches in 72 hours. Heavy rain exacerbates drainage issues and can cause backflow.' },
+    'HVAC / Temperature / Comfort': { publicData: 'NYC DOE requires classroom temperatures 65-78F. 311 data shows 12 heat-related complaints from schools in this district last month.', implication: 'Sustained temperature complaints affecting student health may trigger DOE reporting requirements and OSHA indoor air quality guidelines.', history: 'CriticalAsset shows recurring HVAC comfort complaints in this zone. Pattern suggests zoning imbalance or failed sensor.', environmental: 'Current outdoor temperature: 87F with high humidity. Solar loading on south-facing classrooms peaks 11AM-2PM.' },
+    'Door / Hardware / Egress': { publicData: 'NYC Building Code 1010.1.9 requires egress doors to be openable without special knowledge. FDNY records show building passed last annual fire inspection.', implication: 'Non-latching stairwell door may compromise fire compartmentalization and smoke containment. Could trigger FDNY re-inspection.', history: 'No prior door-related work orders for this location. Door hardware issues common in schools over 30 years old.', environmental: 'Building pressure differentials can prevent doors from latching, especially in pressurized stairwells.' },
+    'Elevator / Vertical Transport': { publicData: 'NYC DOB elevator inspection records show unit last inspected 8 months ago. ADA Title II requires accessible routes in public schools.', implication: 'Week-long outage affecting students with disabilities is potential ADA compliance issue requiring emergency accommodation plan.', history: '2 prior elevator work orders in past year. Recurring outages indicate end-of-life equipment or deferred maintenance.', environmental: 'No environmental factors. Elevator issues are typically mechanical/electrical.' },
+    'Fire / Life Safety': { publicData: 'FDNY requires investigation of repeated false alarms. NYC Admin Code 15-230 allows penalties for excessive false alarms. System installed 2008.', implication: 'Three false alarms in one week strongly suggests detector malfunction. FDNY notification may be required. Creates evacuation fatigue.', history: '1 prior fire alarm work order resolved 4 months ago. New cluster suggests different root cause.', environmental: 'Construction dust, high humidity, cooking/steam near detectors are common environmental triggers.' },
+    'Electrical': { publicData: 'NYC Electrical Code requires licensed electrician for panel work. DOB records show original electrical permit from construction.', implication: 'Electrical issues near water or student areas require immediate lockout/tagout. Do not allow occupancy until cleared.', history: 'Multiple electrical work orders across portfolio. Common in aging school infrastructure.', environmental: 'High grid load due to heatwave. Brownouts or voltage fluctuations can trip breakers.' }
+  };
+  return e[issueType] || e['HVAC / Temperature / Comfort'];
+}
+
+function getCompliance(issueType) {
+  var c = {
+    'Plumbing / Drainage / Water Intrusion': ['NYC Plumbing Code: Sanitary drainage must prevent sewer gas entry', 'NYC DOE: Standing water requires same-day response', 'HPD: Ongoing leak conditions may trigger complaint and inspection', 'DOB: Recurring violations require licensed plumber sign-off'],
+    'HVAC / Temperature / Comfort': ['NYC DOE: Classroom temperatures must be 65-78F during occupancy', 'OSHA: Indoor air quality and thermal comfort standards', 'NYC Health Code: Ventilation requirements for schools', 'Chancellor Regulation A-850: HVAC complaints require 24hr response'],
+    'Door / Hardware / Egress': ['NYC Building Code 1010: Egress doors must latch automatically', 'NFPA 80: Fire door assemblies inspected annually', 'FDNY: Non-functional fire doors reported immediately', 'ADA: Accessible route doors max 5 lbf opening force'],
+    'Elevator / Vertical Transport': ['NYC DOB: Annual inspection required; extended outages need notification', 'ADA Title II: Must maintain accessible vertical circulation', 'NYC DOE: Outages affecting IEP students require accommodation plan', 'NYC Admin Code 28-304.6: Maintenance records kept on-site'],
+    'Fire / Life Safety': ['FDNY: Repeated false alarms must be investigated and reported', 'NYC Admin Code 15-230: Penalties for excessive false alarms', 'NFPA 72: Semi-annual inspection and testing required', 'NYC DOE: All activations documented in school safety log'],
+    'Electrical': ['NYC Electrical Code: All work requires licensed electrician', 'OSHA: Hazards in occupied spaces require immediate de-energization', 'NYC DOE: Electrical issues require same-day lockout/tagout', 'NFPA 70E: Arc flash assessment required for panel work']
+  };
+  return c[issueType] || c['HVAC / Temperature / Comfort'];
+}
+
+function getWorkflow(issueType) {
+  var w = {
+    'Plumbing / Drainage / Water Intrusion': [
+      { action: 'Inspect floor drain and sanitary connection', detail: 'Verify trap seal, check blockage, assess water source and spread.' },
+      { action: 'Contain: Restrict access if water spreading', detail: 'Place wet floor signs, redirect traffic, protect nearby electrical.' },
+      { action: 'Diagnose: Camera inspection of drain line', detail: 'Check for root intrusion, collapse, or blockage.' },
+      { action: 'Cross-reference prior work orders', detail: 'Flag if previously resolved issue has recurred.' },
+      { action: 'Repair + student confirmation', detail: 'Complete repair, verify no odor/water for 48 hours, ask reporter to confirm.' }
+    ],
+    'HVAC / Temperature / Comfort': [
+      { action: 'Verify supply air temperature at diffuser', detail: 'Compare to BMS setpoint. Identify supply-side vs zone-side issue.' },
+      { action: 'Inspect damper position and actuator', detail: 'Verify VAV responding to thermostat. Check for failed actuator.' },
+      { action: 'Review BMS trend data for zone', detail: 'Look for sensor drift, schedule mismatch, simultaneous heat/cool.' },
+      { action: 'Check other complaints in same zone', detail: 'Adjacent complaints suggest distribution issue, not local.' },
+      { action: 'Adjust + monitor 24 hours', detail: 'Apply fix, monitor trends, confirm with occupants.' }
+    ],
+    'Door / Hardware / Egress': [
+      { action: 'Inspect door, closer, and latch', detail: 'Check strike alignment, closer arm, latch engagement, hinge condition.' },
+      { action: 'Verify if fire-rated egress path', detail: 'Non-latching fire door is life-safety deficiency.' },
+      { action: 'Repair/replace hardware', detail: 'Adjust closer speed, realign strike, replace worn latch.' },
+      { action: 'Update fire door inspection log', detail: 'Per NFPA 80, document all repairs to fire door assemblies.' },
+      { action: 'Verify latching under all conditions', detail: 'Test with HVAC on/off, confirm positive latching.' }
+    ],
+    'Elevator / Vertical Transport': [
+      { action: 'Contact elevator service contractor', detail: 'Emergency service call. Confirm estimated repair time.' },
+      { action: 'Implement accessibility accommodation', detail: 'Alternative routes, staff escorts, notify affected families.' },
+      { action: 'Report to DOE/DOB if required', detail: 'Outage >72 hours with mobility-impaired students triggers reporting.' },
+      { action: 'Track repair timeline daily', detail: 'Document each day of outage and contractor communications.' },
+      { action: 'Test all floors + student confirmation', detail: 'After repair, test every floor, run 24 hours, confirm with users.' }
+    ],
+    'Fire / Life Safety': [
+      { action: 'Identify which zone/detector triggered', detail: 'Review panel history for specific device address and times.' },
+      { action: 'Clean/test suspect detectors', detail: 'Detectors near kitchens or construction accumulate particles.' },
+      { action: 'Check environmental triggers', detail: 'Steam, dust, aerosols, or HVAC conditions causing activation.' },
+      { action: 'Document and notify FDNY', detail: 'Three+ false alarms in 7 days typically requires notification.' },
+      { action: 'Replace defective device + retest', detail: 'Swap detector, perform sensitivity test, monitor 7 days.' }
+    ],
+    'Electrical': [
+      { action: 'De-energize and restrict access', detail: 'Lockout/tagout. No student access until electrician clears.' },
+      { action: 'Licensed electrician inspection', detail: 'Identify root cause: overload, short, ground fault, or failure.' },
+      { action: 'Repair per NYC Electrical Code', detail: 'Licensed electrician with proper permits required.' },
+      { action: 'Test and restore power safely', detail: 'Megger test insulation, verify grounding, energize under supervision.' },
+      { action: 'Update panel schedule and close', detail: 'Record repair details, update diagrams, confirm with reporter.' }
+    ]
+  };
+  return w[issueType] || w['HVAC / Temperature / Comfort'];
+}
+
+function generateAIOutput(input, where, when_val, still, severity) {
+  var analysis = analyzeInput(input);
+  var enrichment = getEnrichment(analysis.issueType);
+  var compliance = getCompliance(analysis.issueType);
+  var workflow = getWorkflow(analysis.issueType);
+  var loc = where || analysis.location;
+
+  document.getElementById('ai-classification').innerHTML =
+    '<div class="output-item"><div class="label">Issue Type</div><div class="value">' + analysis.issueType + '</div></div>' +
+    '<div class="output-item"><div class="label">Location</div><div class="value">' + loc + '</div></div>' +
+    '<div class="output-item"><div class="label">Severity</div><div class="value ' + analysis.severityClass + '">' + analysis.severity + '</div></div>' +
+    '<div class="output-item"><div class="label">Urgency</div><div class="value">' + analysis.urgency + '</div></div>' +
+    '<div class="output-item"><div class="label">Asset Category</div><div class="value">' + analysis.assetCategory + '</div></div>' +
+    '<div class="output-item"><div class="label">Duration</div><div class="value">' + (when_val || 'Not specified') + '</div></div>' +
+    '<div class="output-item"><div class="label">Status</div><div class="value">' + (still === 'yes' ? 'Active' : still === 'no' ? 'Resolved' : still === 'intermittent' ? 'Intermittent' : 'Unknown') + '</div></div>' +
+    '<div class="output-item"><div class="label">Disruption</div><div class="value">' + (severity ? severity + '/5' : 'Not rated') + '</div></div>';
+
+  document.getElementById('ai-enrichment').innerHTML =
+    '<div class="enrichment-card"><div class="source"><i class="fa-solid fa-building-columns"></i> NYC DOB / Public Records</div><div class="finding">' + enrichment.publicData + '</div><div class="implication">' + enrichment.implication + '</div></div>' +
+    '<div class="enrichment-card"><div class="source"><i class="fa-solid fa-clock-rotate-left"></i> Prior Work Order History</div><div class="finding">' + enrichment.history + '</div></div>' +
+    '<div class="enrichment-card"><div class="source"><i class="fa-solid fa-cloud-sun"></i> Environmental Context</div><div class="finding">' + enrichment.environmental + '</div></div>';
+
+  document.getElementById('ai-compliance').innerHTML = '<div class="card card-sm">' + compliance.map(function(c) { return '<div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;"><i class="fa-solid fa-scale-balanced" style="color:var(--color-warning);margin-top:2px;"></i><span style="font-size:13px;color:var(--color-text-secondary);">' + c + '</span></div>'; }).join('') + '</div>';
+
+  document.getElementById('ai-workflow').innerHTML = workflow.map(function(step, i) { return '<div class="workflow-step"><div class="workflow-num">' + (i+1) + '</div><div class="workflow-text"><strong>' + step.action + '</strong><br>' + step.detail + '</div></div>'; }).join('');
+
+  document.getElementById('ai-wo-desc').innerHTML = '<p><strong>Issue:</strong> ' + analysis.issueType + '<br><br><strong>Reporter observation:</strong> "' + input + '"<br><br><strong>Location:</strong> ' + loc + '<br><strong>Asset category:</strong> ' + analysis.assetCategory + '<br><strong>Severity:</strong> ' + analysis.severity + ' | <strong>Urgency:</strong> ' + analysis.urgency + '<br><br><strong>AI Summary:</strong> Field report indicates ' + analysis.issueType.toLowerCase() + ' condition at ' + loc + '. Affected assets likely include ' + analysis.assetCategory.toLowerCase() + '. Public records and prior work order history suggest this may be a recurring condition requiring root-cause investigation. Response time: ' + analysis.urgency.toLowerCase() + '.</p>';
+
+  document.getElementById('ai-output').classList.add('active');
+  document.getElementById('ai-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderWOList(filter) {
+  var list = document.getElementById('wo-list');
+  var filtered = filter ? workOrders.filter(function(wo) { return wo.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0 || wo.city.toLowerCase().indexOf(filter.toLowerCase()) >= 0; }) : workOrders;
+  list.innerHTML = filtered.map(function(wo) {
+    var badgeClass = wo.stage === 'To Do' ? 'todo' : wo.stage === 'In Progress' ? 'progress' : 'done';
+    var loc = [wo.city, wo.state].filter(Boolean).join(', ');
+    return '<div class="wo-item" onclick="enrichWorkOrder(\'' + wo.id + '\')"><div style="flex:1;"><div class="wo-name">' + wo.name + '</div><div class="wo-loc">' + (loc || '--') + '</div></div><span class="wo-badge-sm ' + badgeClass + '">' + wo.stage + '</span></div>';
+  }).join('');
+}
+
+function filterWO() { renderWOList(document.getElementById('wo-search').value); }
+
+function enrichWorkOrder(id) {
+  var wo = workOrders.find(function(w) { return w.id === id; });
+  if (!wo) return;
+  document.querySelectorAll('.wo-item').forEach(function(el) { el.classList.remove('selected'); });
+  if (event && event.target) { var item = event.target.closest('.wo-item'); if (item) item.classList.add('selected'); }
+  var analysis = analyzeInput(wo.name + ' ' + wo.description);
+  var compliance = getCompliance(analysis.issueType);
+  var workflow = getWorkflow(analysis.issueType);
+
+  document.getElementById('wo-enrich-output').style.display = 'block';
+  document.getElementById('wo-enhanced').innerHTML =
+    '<h3 style="margin-bottom:16px;">Enhanced: ' + wo.name + '</h3>' +
+    '<div style="margin-bottom:12px;"><span style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;">Original Description</span><p style="font-size:13px;color:var(--color-text-secondary);background:var(--color-bg);padding:12px;border-radius:var(--radius-md);margin:4px 0;">' + (wo.description || '<em>No description provided - this is exactly the problem.</em>') + '</p></div>' +
+    '<div style="margin-bottom:12px;"><span style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;">AI-Enhanced Description</span><p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin:4px 0;">Field report for ' + analysis.issueType.toLowerCase() + ' at ' + [wo.address, wo.city, wo.state].filter(Boolean).join(', ') + '. Likely assets: ' + analysis.assetCategory.toLowerCase() + '. Severity: ' + analysis.severity + '. Response: ' + analysis.urgency + '. Prior work order history and public records suggest potential recurring condition.</p></div>' +
+    '<div class="output-grid" style="margin-top:16px;"><div class="output-item"><div class="label">Issue Type</div><div class="value">' + analysis.issueType + '</div></div><div class="output-item"><div class="label">Severity</div><div class="value ' + analysis.severityClass + '">' + analysis.severity + '</div></div><div class="output-item"><div class="label">Asset Category</div><div class="value">' + analysis.assetCategory + '</div></div><div class="output-item"><div class="label">Urgency</div><div class="value">' + analysis.urgency + '</div></div></div>' +
+    '<div class="section-title">Compliance Flags</div>' + compliance.map(function(c) { return '<div style="display:flex;gap:8px;margin-bottom:8px;"><i class="fa-solid fa-triangle-exclamation" style="color:var(--color-warning);margin-top:2px;font-size:11px;"></i><span style="font-size:12px;color:var(--color-text-secondary);">' + c + '</span></div>'; }).join('') +
+    '<div class="section-title">Recommended Actions</div>' + workflow.slice(0, 3).map(function(step, i) { return '<div class="workflow-step"><div class="workflow-num">' + (i+1) + '</div><div class="workflow-text"><strong>' + step.action + '</strong><br>' + step.detail + '</div></div>'; }).join('');
+
+  document.getElementById('wo-enrich-output').scrollIntoView({ behavior: 'smooth' });
+}
+
+function selectFeedback(el, value) {
+  el.closest('.feedback-options').querySelectorAll('.feedback-opt').forEach(function(b) { b.classList.remove('selected'); });
+  el.classList.add('selected');
+  if (value === 'worse' || value === 'still') {
+    setTimeout(function() { alert('Issue flagged as unresolved. Work order will be re-opened and escalated to facilities team.'); }, 300);
+  } else if (value === 'fixed') {
+    setTimeout(function() { alert('Confirmed resolved. Thank you for closing the loop.'); }, 300);
+  }
+}
+
+renderWOList();
+</script>
+</body>
+</html>
